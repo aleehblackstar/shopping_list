@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_list/pages/create_list_page.dart';
 import '../models/shopping_list_model.dart';
 
 class HomePage extends StatefulWidget {
@@ -35,7 +36,18 @@ class _HomePageState extends State<HomePage> {
       
       floatingActionButton: FloatingActionButton(
         key: const Key("addListBtn"),
-        onPressed: () {
+        onPressed: () async {
+          final String? listName = await Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const CreateListPage()),
+  );
+
+  if (listName != null && listName.isNotEmpty) {
+    setState(() {
+      // Cria a nova lista usando o nosso Model
+      shoppingLists.add(ShoppingListModel(name: listName, products: []));
+    });
+  }
         },
         backgroundColor: Colors.blue,
         child: const Icon(Icons.add, color: Colors.white),
@@ -49,9 +61,9 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Lembre-se de adicionar a imagem nos assets depois!
+          
           Image.asset(
-            '/assets/images/lista-de-compras.png',
+            "assets/images/lista-de-compras.png",
             key: const Key("emptylistimage"),
             height: 200,
           ),
