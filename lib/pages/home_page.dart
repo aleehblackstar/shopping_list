@@ -32,7 +32,8 @@ class _HomePageState extends State<HomePage> {
       ),
       // Se a lista estiver vazia, mostra a tela de boas-vindas. 
       // Caso contrário, mostra as listas.
-      body: shoppingLists.isEmpty ? _buildEmptyState() : _buildListView(),
+      body: SafeArea(
+        child: shoppingLists.isEmpty ? _buildEmptyState() : _buildListView()),
       
       floatingActionButton: FloatingActionButton(
         key: const Key("addListBtn"),

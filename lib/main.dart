@@ -17,8 +17,8 @@ class ShoppingListApp extends StatelessWidget {
         primarySwatch: Colors.green,
         useMaterial3: true,
       ),
-      home: SafeArea(
-        child: const HomePage()), // Vamos substituir pela nossa HomePage logo mais
+      home: const HomePage(
+      ), // Vamos substituir pela nossa HomePage logo mais
     );
   }
 }
