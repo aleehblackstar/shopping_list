@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_list/pages/home_page.dart';
 
 void main() {
   runApp(const ShoppingListApp());
@@ -16,7 +17,8 @@ class ShoppingListApp extends StatelessWidget {
         primarySwatch: Colors.green,
         useMaterial3: true,
       ),
-      home: const Placeholder(), // Vamos substituir pela nossa HomePage logo mais
+      home: SafeArea(
+        child: const HomePage()), // Vamos substituir pela nossa HomePage logo mais
     );
   }
 }
