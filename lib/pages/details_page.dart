@@ -12,14 +12,31 @@ class DetailsPage extends StatefulWidget {
 }
 
 class _DetailsPageState extends State<DetailsPage> {
- 
+  String? _errorMessage;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _valueController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _valueController.dispose();
+    super.dispose();
+  }
+
   void _openAddItemModal() {
+    _errorMessage = null;
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, 
-      builder: (context) => _buildBottomSheet(),
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return _buildBottomSheet(setModalState);
+        },
+      ),
     ).then((value) {
-      if (value != null) setState(() {}); 
+      _nameController.clear();
+      _valueController.clear();
+      if (value != null) setState(() {});
     });
   }
 
@@ -34,9 +51,12 @@ class _DetailsPageState extends State<DetailsPage> {
         ),
         actions: [
           TextButton(
-            key: const Key("updateListBtn"), 
+            key: const Key("updateListBtn"),
             onPressed: () => setState(() {}),
-            child: const Text("Atualizar", style: TextStyle(color: Colors.white)),
+            child: const Text(
+              "Atualizar",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -48,18 +68,21 @@ class _DetailsPageState extends State<DetailsPage> {
             children: [
               Text(
                 widget.shoppingList.name,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const Divider(),
-              _buildSummary(), 
+              _buildSummary(),
               const SizedBox(height: 20),
-              Expanded(child: _buildProductList()), 
+              Expanded(child: _buildProductList()),
             ],
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        key: const Key("addNewItemBtn"), 
+        key: const Key("addNewItemBtn"),
         onPressed: _openAddItemModal,
         label: const Text("Adicionar", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue,
@@ -67,12 +90,15 @@ class _DetailsPageState extends State<DetailsPage> {
     );
   }
 
-
   Widget _buildSummary() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        _summaryItem("Não marcados", widget.shoppingList.totalNotBought, Colors.blue),
+        _summaryItem(
+          "Não marcados",
+          widget.shoppingList.totalNotBought,
+          Colors.blue,
+        ),
         const SizedBox(width: 40),
         _summaryItem("Marcados", widget.shoppingList.totalBought, Colors.green),
       ],
@@ -86,12 +112,15 @@ class _DetailsPageState extends State<DetailsPage> {
         Text(label, style: const TextStyle(fontSize: 14)),
         Text(
           "R\$ ${value.toStringAsFixed(2)}",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
         ),
       ],
     );
   }
-
 
   Widget _buildProductList() {
     return ListView.builder(
@@ -100,9 +129,9 @@ class _DetailsPageState extends State<DetailsPage> {
         final product = widget.shoppingList.products[index];
         return ListTile(
           leading: Transform.scale(
-            scale: 1.5, 
+            scale: 1.5,
             child: Checkbox(
-              key: const Key("productCheckbox"), 
+              key: const Key("productCheckbox"),
               value: product.isBought,
               shape: const CircleBorder(),
               onChanged: (val) => setState(() => product.isBought = val!),
@@ -115,15 +144,13 @@ class _DetailsPageState extends State<DetailsPage> {
     );
   }
 
-  // O BottomSheet (Modal de cadastro)
-  Widget _buildBottomSheet() {
-    final nameController = TextEditingController();
-    final valueController = TextEditingController();
-
+  Widget _buildBottomSheet(StateSetter setModalState) {
     return Padding(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom, // Ajuste para o teclado
-        left: 20, right: 20, top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        left: 20,
+        right: 20,
+        top: 20,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -131,30 +158,55 @@ class _DetailsPageState extends State<DetailsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Adicionar Item", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+              const Text(
+                "Adicionar Item",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  _nameController.clear();
+                  _valueController.clear();
+                  Navigator.pop(context);
+                },
+              ),
             ],
           ),
           TextField(
-            key: const Key("inputItem"), 
-            controller: nameController,
-            decoration: const InputDecoration(hintText: "Nome do item"),
+            key: const Key("inputItem"),
+            controller: _nameController,
+            decoration: InputDecoration(
+              hintText: "Nome do item",
+              errorText: _errorMessage,
+              errorStyle: const TextStyle(color: Colors.red),
+            ),
           ),
           TextField(
             key: const Key("inputValue"),
-            controller: valueController,
+            controller: _valueController,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(hintText: "R\$ 0,00"),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
-            key: const Key("addItemBtn"), 
+            key: const Key("addItemBtn"),
             onPressed: () {
-              if (nameController.text.isNotEmpty && valueController.text.isNotEmpty) {
-                widget.shoppingList.products.add(ProductModel(
-                  name: nameController.text,
-                  value: double.tryParse(valueController.text.replaceFirst(',', '.')) ?? 0.0,
-                ));
+              if (_nameController.text.isEmpty) {
+                setModalState(() {
+                  _errorMessage = "Campo obrigatório";
+                });
+              } else {
+                widget.shoppingList.products.add(
+                  ProductModel(
+                    name: _nameController.text,
+                    value: double.tryParse(
+                          _valueController.text.replaceFirst(',', '.'),
+                        ) ??
+                        0.0,
+                  ),
+                );
+                _nameController.clear();
+                _valueController.clear();
                 Navigator.pop(context, true);
               }
             },

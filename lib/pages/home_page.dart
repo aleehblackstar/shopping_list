@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shopping_list/pages/create_list_page.dart';
+import 'create_list_page.dart';
+import 'details_page.dart';
 import '../models/shopping_list_model.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,7 +20,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.green,
         centerTitle: true,
         title: const Text(
-          "Minhas listas", 
+          "Minhas listas",
           key: Key("appBarTitle"),
           style: TextStyle(color: Colors.white),
         ),
@@ -30,25 +31,22 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      // Se a lista estiver vazia, mostra a tela de boas-vindas. 
-      // Caso contrário, mostra as listas.
       body: SafeArea(
-        child: shoppingLists.isEmpty ? _buildEmptyState() : _buildListView()),
-      
+        child: shoppingLists.isEmpty ? _buildEmptyState() : _buildListView(),
+      ),
       floatingActionButton: FloatingActionButton(
         key: const Key("addListBtn"),
         onPressed: () async {
           final String? listName = await Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const CreateListPage()),
-  );
+            context,
+            MaterialPageRoute(builder: (context) => const CreateListPage()),
+          );
 
-  if (listName != null && listName.isNotEmpty) {
-    setState(() {
-      // Cria a nova lista usando o nosso Model
-      shoppingLists.add(ShoppingListModel(name: listName, products: []));
-    });
-  }
+          if (listName != null && listName.isNotEmpty) {
+            setState(() {
+              shoppingLists.add(ShoppingListModel(name: listName, products: []));
+            });
+          }
         },
         backgroundColor: Colors.blue,
         child: const Icon(Icons.add, color: Colors.white),
@@ -56,13 +54,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Widget para o estado vazio
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          
           Image.asset(
             "assets/images/lista-de-compras.png",
             key: const Key("emptylistimage"),
@@ -79,8 +75,59 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Widget para a listagem (vazio por enquanto)
   Widget _buildListView() {
-    return const Center(child: Text("Suas listas aparecerão aqui!"));
+    return ListView.builder(
+      itemCount: shoppingLists.length,
+      itemBuilder: (context, index) {
+        final list = shoppingLists[index];
+        return GestureDetector(
+          key: const Key("shoppingListCard"),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailsPage(shoppingList: list),
+              ),
+            ).then((_) => setState(() {}));
+          },
+          child: Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: Colors.white,
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        list.name,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        list.progressText,
+                        style: const TextStyle(
+                            color: Colors.green, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  LinearProgressIndicator(
+                    value: list.progressPercentage,
+                    backgroundColor: Colors.grey[300],
+                    color: Colors.green,
+                    minHeight: 8,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

@@ -8,62 +8,35 @@ class CreateListPage extends StatefulWidget {
 }
 
 class _CreateListPageState extends State<CreateListPage> {
-  
   final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue, 
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        title: const Text("Nova Lista", style: TextStyle(color: Colors.white)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              color: Colors.white,
-              child: TextField(
-                controller: _controller,
-                key: const Key("listNameInput"), 
-                decoration: const InputDecoration(
-                  hintText: "Nome da lista",
-                  contentPadding: EdgeInsets.all(16),
-                  border: InputBorder.none,
-                ),
-              ),
+            TextField(
+              key: const Key("inputListName"),
+              controller: _controller,
+              decoration: const InputDecoration(hintText: "Nome da lista"),
             ),
-            const SizedBox(height: 40),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    key: const Key("backToListsBtn"),
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.white),
-                      shape: const StadiumBorder(),
-                    ),
-                    child: const Text("Voltar", style: TextStyle(color: Colors.white)),
-                  ),
-                ),
-                const SizedBox(width: 20),
-                // Botão Criar
-                Expanded(
-                  child: ElevatedButton(
-                    key: const Key("createListBtn"),
-                    onPressed: () {
-                      if (_controller.text.isNotEmpty) {
-                        Navigator.pop(context, _controller.text);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: const StadiumBorder(),
-                    ),
-                    child: const Text("Criar", style: TextStyle(color: Colors.blue)),
-                  ),
-                ),
-              ],
+            const SizedBox(height: 20),
+            ElevatedButton(
+              key: const Key("createListBtn"),
+              onPressed: () {
+                Navigator.pop(context, _controller.text);
+              },
+              child: const Text("Criar"),
             ),
           ],
         ),
